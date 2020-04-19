@@ -9,15 +9,17 @@ speed = 50
 
 # function that move some coordinates at constant speed.
 def move_enemy(ticks):
-    return (float(speed) * ticks / 1000)
+    return float(speed) * ticks / 1000
 
 
 attackSpeed = 2
 
 ammoSpeed = 10
 
-def attack(ticks):
-    return (float(attackSpeed) * ticks / 1000)
+
+def attack(hp, ticks):
+
+    return hp - float(attackSpeed) * ticks / 1000
 
 
 # a = pygame.Rect(50, 100, 50, 50)
@@ -62,9 +64,10 @@ while running:
 
     # check if tower can hit the enemy
     if math.hypot(x-283+25, 150-284+25) < 180:
-
-        hp -= attack(ticks)
-        pygame.draw.rect(screen, 1, pygame.Rect(283-5+(x-283+25)*attackTimer/ammoSpeed, 284-5+(150-284+25)*attackTimer/ammoSpeed, 10, 10), 10)
+        # attack action:
+        hp = attack(hp, ticks)
+        pygame.draw.rect(screen, 1, pygame.Rect(283-5+(x-283+25)*attackTimer/ammoSpeed, 284-5+(150-284+25)*attackTimer /
+                                                ammoSpeed, 10, 10), 10)
 
         attackTimer += 1
         if attackTimer == ammoSpeed:
