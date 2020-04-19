@@ -14,6 +14,7 @@ def move_enemy(ticks):
 
 attackSpeed = 2
 
+ammoSpeed = 10
 
 def attack(ticks):
     return (float(attackSpeed) * ticks / 1000)
@@ -32,6 +33,7 @@ ticks = 0
 x = 10
 hp = 10
 
+attackTimer = 1
 
 while running:
     # background image displayed
@@ -60,8 +62,14 @@ while running:
 
     # check if tower can hit the enemy
     if math.hypot(x-283+25, 150-284+25) < 180:
-        print("we meet the enemy! Attack!!!")
+
         hp -= attack(ticks)
+        pygame.draw.rect(screen, 1, pygame.Rect(283-5+(x-283+25)*attackTimer/ammoSpeed, 284-5+(150-284+25)*attackTimer/ammoSpeed, 10, 10), 10)
+
+        attackTimer += 1
+        if attackTimer == ammoSpeed:
+            attackTimer = 1
+
         pygame.draw.line(screen, 1, (283, 284), (x+25, 175), 2)
         if hp < 0:
             print("you win!")
