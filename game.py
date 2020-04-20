@@ -1,6 +1,6 @@
 import pygame
 import math
-import ADP.py
+import ADP
 
 
 running = 1

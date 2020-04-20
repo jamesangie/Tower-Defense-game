@@ -35,7 +35,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.ADP">
+  <component name="RunManager" selected="Python.game">
     <configuration name="ADP" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Tower Defense game" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -80,8 +80,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.ADP" />
         <item itemvalue="Python.game" />
+        <item itemvalue="Python.ADP" />
       </list>
     </recent_temporary>
   </component>

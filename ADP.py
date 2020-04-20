@@ -23,7 +23,6 @@ class Map:
     def __init__(self, name, image):
         self.name = name
         self.image = image
-        self.
 
 tower1 = Tower("normal tower", "venv/image/tower/tower1.jpg", 10, 2, 2, 180)
 enemy1 = Enemy("Monster", "venv/image/enemy/enemy1.jpg", 50, 10)
