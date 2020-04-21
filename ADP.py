@@ -24,5 +24,6 @@ class Map:
         self.name = name
         self.image = image
 
+
 tower1 = Tower("normal tower", "venv/image/tower/tower1.jpg", 10, 2, 2, 180)
 enemy1 = Enemy("Monster", "venv/image/enemy/enemy1.jpg", 50, 10)

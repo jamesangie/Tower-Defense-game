@@ -14,9 +14,14 @@ def move_enemy(ticks):
     return float(speed) * ticks / 1000
 
 
-attackSpeed = 2
+attackSpeed = 1
 
-ammoSpeed = 10
+ammoSpeed = 100
+
+
+# Function that checks if object1 with coordinate p1 is in the attack range of object2 with coordinate p2 and range r
+def in_range(p1, p2, r):
+    return math.hypot(p1[0] - p2[0], p1[1] - p2[1]) < 180
 
 
 def attack(hp, ticks):
@@ -42,7 +47,7 @@ attackTimer = 1
 while running:
     # background image displayed
     event = pygame.event.poll()
-    image = pygame.image.load("venv/image/map/map2.jpg")
+    image = pygame.transform.scale(pygame.image.load("venv/image/map/map1.jpg"), (600, 400))
     if event.type == pygame.QUIT:
         running = 0
 
@@ -65,11 +70,11 @@ while running:
     pygame.draw.circle(screen, 1, (283, 284), 180, 2)
 
     # check if tower can hit the enemy
-    if math.hypot(x-283+25, 150-284+25) < 180:
+    if in_range((x+25, 175), (283, 284), 180):
         # attack action:
         hp = attack(hp, ticks)
-        pygame.draw.rect(screen, 1, pygame.Rect(283-5+(x-283+25)*attackTimer/ammoSpeed, 284-5+(150-284+25)*attackTimer /
-                                                ammoSpeed, 10, 10), 10)
+        pygame.draw.rect(screen, 100, pygame.Rect(283-5+(x-283+25)*attackTimer/ammoSpeed, 284-5+(150-284+25)*attackTimer
+                                                  / ammoSpeed, 10, 10), 10)
 
         attackTimer += 1
         if attackTimer == ammoSpeed:
