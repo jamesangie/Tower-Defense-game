@@ -16,7 +16,7 @@ def move_enemy(ticks):
 
 attackSpeed = 1
 
-ammoSpeed = 100
+ammoSpeed = 10
 
 
 # Function that checks if object1 with coordinate p1 is in the attack range of object2 with coordinate p2 and range r
@@ -73,8 +73,8 @@ while running:
     if in_range((x+25, 175), (283, 284), 180):
         # attack action:
         hp = attack(hp, ticks)
-        pygame.draw.rect(screen, 100, pygame.Rect(283-5+(x-283+25)*attackTimer/ammoSpeed, 284-5+(150-284+25)*attackTimer
-                                                  / ammoSpeed, 10, 10), 10)
+        pygame.draw.rect(screen, 100, pygame.Rect(283-5+(x-283+25)*attackTimer/ammoSpeed, 284-5+(150-284+25)
+                                                  * attackTimer / ammoSpeed, 10, 10), 10)
 
         attackTimer += 1
         if attackTimer == ammoSpeed:
