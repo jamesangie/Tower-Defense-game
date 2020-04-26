@@ -8,6 +8,8 @@ screen = pygame.display.set_mode((600, 450))
 
 speed = 50
 
+gold = 100
+
 
 # function that move some coordinates at constant speed.
 def move_enemy(ticks):
@@ -17,6 +19,8 @@ def move_enemy(ticks):
 attackSpeed = 0
 
 ammoSpeed = 10
+
+a = pygame.Rect(100, 50, 0, 0)
 
 
 # Function that checks if object1 with coordinate p1 is in the attack range of object2 with coordinate p2 and range r
@@ -55,6 +59,8 @@ while running:
     if event.type == pygame.MOUSEBUTTONDOWN:
         print(pygame.mouse.get_pos())
 
+    pygame.draw.rect(screen, 0, a, 10)
+
     # create the map
     screen.fill((0, 0, 0))
     screen.blit(image, (0, 50))
@@ -67,8 +73,9 @@ while running:
         y -= move_enemy(ticks)
     else:
         y += move_enemy(ticks)
-    print(x, y)
-    # create enemy and tower. Enemy can move at a constant speed
+    #print(x, y)
+
+    # create enemy base and tower. Enemy can move at a constant speed
     screen.blit(enemy, (x-25, y-25))
     screen.blit(tower, (259, 253))
     screen.blit(base, (596, 228))
