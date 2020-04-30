@@ -20,7 +20,7 @@ attackSpeed = 0
 
 ammoSpeed = 10
 
-a = pygame.Rect(100, 50, 0, 0)
+a = pygame.Rect(0, 0, 10)
 
 
 # Function that checks if object1 with coordinate p1 is in the attack range of object2 with coordinate p2 and range r
@@ -38,6 +38,7 @@ def attack(hp, ticks):
 enemy = pygame.transform.scale(pygame.image.load("venv/image/enemy/enemy1.jpg"), (50, 50))
 tower = pygame.transform.scale(pygame.image.load("venv/image/tower/tower1.jpg"), (50, 50))
 base = pygame.transform.scale(pygame.image.load("venv/image/tower/base.jpg"), (50, 50))
+image = pygame.transform.scale(pygame.image.load("venv/image/map/map1.jpg"), (600, 400))
 # introduce time to make the objects move at constant speed
 time = pygame.time.Clock()
 ticks = 0
@@ -52,14 +53,14 @@ attackTimer = 1
 while running:
     # background image displayed
     event = pygame.event.poll()
-    image = pygame.transform.scale(pygame.image.load("venv/image/map/map1.jpg"), (600, 400))
+
     if event.type == pygame.QUIT:
         running = 0
 
     if event.type == pygame.MOUSEBUTTONDOWN:
         print(pygame.mouse.get_pos())
 
-    pygame.draw.rect(screen, 0, a, 10)
+    pygame.draw.rect(screen, 100, a, 1)
 
     # create the map
     screen.fill((0, 0, 0))
