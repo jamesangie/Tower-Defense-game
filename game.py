@@ -16,7 +16,7 @@ def move_enemy(ticks):
     return float(speed) * ticks / 1000
 
 
-attackSpeed = 0
+attackSpeed = 2
 
 ammoSpeed = 10
 
@@ -71,13 +71,7 @@ while running:
             building = True
         print(pygame.mouse.get_pos())
 
-    # when click on good location in building phase, the tower is built.
-    if (building is True) and (event.type == pygame.MOUSEBUTTONDOWN) and (pygame.mouse.get_pos()[1] > 50):
-        # quit building phase
-        building = False
-        # store the tower information in tower_dict
-        tower_dict["tower"+str(tower_count)] = pygame.mouse.get_pos()
-        tower_count += 1
+
 
     # create the map
     screen.fill((0, 0, 0))
@@ -97,37 +91,46 @@ while running:
         y += move_enemy(ticks)
     #print(x, y)
 
-    # create enemy base and tower. Enemy can move at a constant speed
+    # create enemy and base. Enemy can move at a constant speed
     screen.blit(enemy, (x-25, y-25))
-    screen.blit(tower, (259, 253))
     screen.blit(base, (596-50, 228-25))
 
-    # hit range of the tower
-    pygame.draw.circle(screen, 1, (283, 284), 180, 2)
 
     # when in building phase
     if building:
         screen.blit(tower, (pygame.mouse.get_pos()[0]-25, pygame.mouse.get_pos()[1]-25))
         # shows the hit range of the tower
         pygame.draw.circle(screen, 1, (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 180, 2)
+        # when click on good location in building phase, the tower is built.
+        if (event.type == pygame.MOUSEBUTTONDOWN) and (pygame.mouse.get_pos()[1] > 50):
+            # quit building phase
+            building = False
+            # store the tower information in tower_dict
+            tower_dict["tower"+str(tower_count)] = pygame.mouse.get_pos()
+            tower_count += 1
 
-    # check if tower can hit the enemy
-    if in_range((x, 175), (283, 284), 180):
-        # attack action has two steps: 1 reduce health, 2 show ammo motion
-        hp = attack(hp, ticks)
-        # recreate a ammo when the last hit the target
-        if attackTimer == ammoSpeed:
-            attackTimer = 1
-        # draw ammo
-        pygame.draw.rect(screen, 100, pygame.Rect(283-5+(x-283)*attackTimer/ammoSpeed, 284-5+(y-284)
-                                                  * attackTimer / ammoSpeed, 10, 10),10)
-        # increase attackTimer so that the ammo can move along the line
-        attackTimer += 1
+    for t in tower_dict.keys():
+        tx = tower_dict[t][0] - 25
+        ty = tower_dict[t][1] - 25
+        screen.blit(tower, (tx, ty))
 
-        pygame.draw.line(screen, 1, (283, 284), (x, y), 2)
-        if hp < 0:
-            print("you win!")
-            running = 0
+        # check if tower can hit the enemy
+        if in_range((x, y), (tx+25, ty+25), 180):
+            # attack action has two steps: 1 reduce health, 2 show ammo motion
+            hp = attack(hp, ticks)
+            # recreate a ammo when the last hit the target
+            if attackTimer == ammoSpeed:
+                attackTimer = 1
+            # draw ammo
+            pygame.draw.rect(screen, 100, pygame.Rect(tx+25-5+(x-tx-25)*attackTimer/ammoSpeed, ty+25-5+(y-ty-25) * attackTimer /
+                                                      ammoSpeed, 10, 10), 10)
+            # increase attackTimer so that the ammo can move along the line
+            attackTimer += 1
+
+            pygame.draw.line(screen, 1, (tx+25, ty+25), (x, y), 2)
+            if hp < 0:
+                print("you win!")
+                running = 0
 
     if x > 600:
         print("you lose!")
