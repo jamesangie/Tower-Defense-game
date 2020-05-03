@@ -29,7 +29,6 @@ def in_range(p1, p2, r):
 
 
 def attack(hp, ticks):
-
     return hp - float(attackSpeed) * ticks / 1000
 
 

@@ -25,5 +25,12 @@ class Map:
         self.image = image
 
 
+class Base:
+    def __init__(self, name, image, speed, hp):
+        self.name = name
+        self.image = image
+        self.hp = hp
+
+
 tower1 = Tower("normal tower", "venv/image/tower/tower1.jpg", 10, 2, 2, 180)
 enemy1 = Enemy("Monster", "venv/image/enemy/enemy1.jpg", 50, 10)
