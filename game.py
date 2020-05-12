@@ -8,7 +8,7 @@ screen = pygame.display.set_mode((600, 450))
 
 gold = 100
 
-speed = 50
+speed = 20
 
 
 # function that move some coordinates at constant speed.
@@ -106,7 +106,7 @@ while running:
             # quit building phase
             building = False
             # store the tower information in tower_dict
-            tower_dict["tower"+str(tower_count)] = pygame.mouse.get_pos()[0]+25, pygame.mouse.get_pos()[1]+25, False
+            tower_dict["tower"+str(tower_count)] = pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], False
             tower_count += 1
 
     # let each tower find its enemy and attack
@@ -139,6 +139,8 @@ while running:
             pygame.draw.line(screen, 1, (tx, ty), (this_towers_enemy[0], this_towers_enemy[1]), 2)
             if hp < 0 or not(in_range((this_towers_enemy[0], this_towers_enemy[1]), (tx+25, ty+25), 180)):
                 tower_dict[t] = (tx, ty, False)
+            if hp < 0:
+                del enemy_dict[this_towers_enemy]
 
     if x > 600:
         print("you lose!")
