@@ -111,6 +111,7 @@ while running:
 
     # let each tower find its enemy and attack
     for t in tower_dict.keys():
+        # tower: [float x, float y, bool have_target, enemy_key target]
         this_tower = tower_dict[t]
         tx = this_tower[0]
         ty = this_tower[1]
@@ -124,12 +125,13 @@ while running:
         else:
             # find it's enemy
             this_towers_enemy = enemy_dict[this_tower[3]]
-
-            # attack action has two steps: 1 reduce health, 2 show ammo motion
-            hp = attack(this_towers_enemy[2], ticks)
+            hp2 = this_towers_enemy[2]
             # recreate a ammo when the last hit the target
             if attackTimer == ammoSpeed:
                 attackTimer = 1
+                # attack action has two steps: 1 reduce health, 2 show ammo motion
+                hp2 = hp2 - 0.7
+
             # draw ammo
             pygame.draw.rect(screen, 100, pygame.Rect(tx-5+(this_towers_enemy[0]-tx)*attackTimer/ammoSpeed, ty-5+(this_towers_enemy[1]-ty) * attackTimer /
                                                       ammoSpeed, 10, 10), 10)
@@ -137,10 +139,20 @@ while running:
             attackTimer += 1
 
             pygame.draw.line(screen, 1, (tx, ty), (this_towers_enemy[0], this_towers_enemy[1]), 2)
-            if hp < 0 or not(in_range((this_towers_enemy[0], this_towers_enemy[1]), (tx+25, ty+25), 180)):
+            # when the enemy is out of range or the enemy is dead, remove the enemy from the dict
+            if hp2 < 0 or not(in_range((this_towers_enemy[0], this_towers_enemy[1]), (tx+25, ty+25), 180)):
                 tower_dict[t] = (tx, ty, False)
-            if hp < 0:
-                del enemy_dict[this_towers_enemy]
+                # if the enemy is dead, remove it from all towers' targets.
+                if hp2 < 0:
+                    # remove enemy from the dict
+                    del enemy_dict[this_tower[3]]
+                    for any_tower in tower_dict.keys():
+                        if tower_dict[any_tower][2] is True:
+                            if tower_dict[any_tower][3] == [this_towers_enemy]:
+                                tower_dict[any_tower] = tower_dict[any_tower][0], tower_dict[any_tower][1], False
+            else:
+                enemy_dict[this_tower[3]] = enemy_dict[this_tower[3]][0], enemy_dict[this_tower[3]][1], hp2
+
 
     if x > 600:
         print("you lose!")
