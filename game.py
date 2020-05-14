@@ -43,6 +43,7 @@ y_ini = 271
 hp_ini = 10
 enemy_count = 2
 enemy_dict = {"enemy1": (x_ini, y_ini, hp_ini), "enemy2": (x_ini-100, y_ini, hp_ini)}
+defeated = [        ]
 
 
 # stats of the tower,
@@ -124,6 +125,7 @@ while running:
                     tower_dict[t] = (tx, ty, True, e)
         else:
             # find it's enemy
+            print(this_tower)
             this_towers_enemy = enemy_dict[this_tower[3]]
             hp2 = this_towers_enemy[2]
             # recreate a ammo when the last hit the target
@@ -143,12 +145,13 @@ while running:
             if hp2 < 0 or not(in_range((this_towers_enemy[0], this_towers_enemy[1]), (tx+25, ty+25), 180)):
                 tower_dict[t] = (tx, ty, False)
                 # if the enemy is dead, remove it from all towers' targets.
-                if hp2 < 0:
+                if hp2 <= 0:
                     # remove enemy from the dict
                     del enemy_dict[this_tower[3]]
+                    # remove enemy from all the towers' target
                     for any_tower in tower_dict.keys():
                         if tower_dict[any_tower][2] is True:
-                            if tower_dict[any_tower][3] == [this_towers_enemy]:
+                            if tower_dict[any_tower][3] == [this_tower[3]]:
                                 tower_dict[any_tower] = tower_dict[any_tower][0], tower_dict[any_tower][1], False
             else:
                 enemy_dict[this_tower[3]] = enemy_dict[this_tower[3]][0], enemy_dict[this_tower[3]][1], hp2
