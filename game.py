@@ -36,13 +36,14 @@ interface = pygame.Rect(0, 0, 600, 50)
 # introducing time makes game running
 time = pygame.time.Clock()
 ticks = 0
+enemy_timer = 5000  # /1000 = seconds
 
 # stats of the enemy, (x,y) is initial pos. hp is health
 x_ini = -10
 y_ini = 271
-hp_ini = 10
-enemy_count = 2
-enemy_dict = {"enemy1": (x_ini, y_ini, hp_ini), "enemy2": (x_ini-100, y_ini, hp_ini)}
+hp_ini = 50
+enemy_count = 0
+enemy_dict = {}
 defeated = []
 
 
@@ -80,12 +81,21 @@ while running:
     pygame.draw.rect(screen, (255, 255, 255, 255), interface)
     screen.blit(pygame.transform.scale(tower, (40, 40)), (5, 5))
     ticks = time.tick(30)
+    # Return the number of milliseconds since pygame.init() was called
+    if pygame.time.get_ticks() // enemy_timer > 0:
+        enemy_timer += 10000
+        enemy_count += 1
+        enemy_dict["enemy"+str(enemy_count)] = (x_ini, y_ini, hp_ini)
 
     for e in enemy_dict.keys():
         if e not in defeated:
             x = enemy_dict[e][0]
             y = enemy_dict[e][1]
             hp = enemy_dict[e][2]
+            # check if enemy hits base
+            if x > 600:
+                print("you lost!")
+                running = 0
             # make the enemy move along the route
             if (x < 100 and y == 271) or (y <= 154 and x < 219) or (219 < x < 379 and y >= 305) or (x >= 379 and y < 227):
                 x += move_enemy(ticks, enemy_count)
@@ -128,7 +138,6 @@ while running:
                     tower_dict[t] = (tx, ty, True, e)
         else:
             # find it's enemy
-            print(this_tower)
             if this_tower[3] not in defeated:
                 this_towers_enemy = enemy_dict[this_tower[3]]
 
@@ -157,9 +166,7 @@ while running:
                 else:
                     enemy_dict[this_tower[3]] = enemy_dict[this_tower[3]][0], enemy_dict[this_tower[3]][1], hp2
 
-    if x > 600:
-        print("you lose!")
-        running = 0
+    #
     # display rect at certain pos
     # pygame.draw.rect(serface=screen, color=1, rect=a, width=5)
 
