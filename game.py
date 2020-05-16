@@ -63,8 +63,9 @@ while running:
     # background image displayed
     event = pygame.event.poll()
 
-    if event.type == pygame.QUIT:
+    if event.type == pygame.QUIT or len(defeated) > 9:
         running = 0
+        print("you win!")
 
     if event.type == pygame.MOUSEBUTTONDOWN:
         # when we want to build a tower:
@@ -82,7 +83,7 @@ while running:
     screen.blit(pygame.transform.scale(tower, (40, 40)), (5, 5))
     ticks = time.tick(30)
     # Return the number of milliseconds since pygame.init() was called
-    if pygame.time.get_ticks() // enemy_timer > 0:
+    if pygame.time.get_ticks() // enemy_timer > 0 and enemy_count < 10:
         enemy_timer += 10000
         enemy_count += 1
         enemy_dict["enemy"+str(enemy_count)] = (x_ini, y_ini, hp_ini)
