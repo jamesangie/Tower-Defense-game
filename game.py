@@ -2,12 +2,25 @@ import pygame
 import math
 import ADP
 
+# activate the pygame library
+# initiate pygame and give permission
+# to use pygame's functionality.
+pygame.init()
+
 # Initializing global variables
 running = 1
 screen = pygame.display.set_mode((600, 450))
 
-gold = 100
+white = (255, 255, 255)
+green = (0, 255, 0)
+blue = (0, 0, 128)
 
+gold = 100
+pygame.display.set_caption("Tower Defence")
+font = pygame.font.Font('freesansbold.ttf', 17)
+text = font.render('Gold: '+str(gold), True, green, blue)
+goldRect = text.get_rect()
+goldRect.center = (500, 20)
 speed = 20
 
 
@@ -41,7 +54,7 @@ enemy_timer = 5000  # /1000 = seconds
 # stats of the enemy, (x,y) is initial pos. hp is health
 x_ini = -10
 y_ini = 271
-hp_ini = 50
+hp_ini = 15
 enemy_count = 0
 enemy_dict = {}
 defeated = []
@@ -170,5 +183,8 @@ while running:
     #
     # display rect at certain pos
     # pygame.draw.rect(serface=screen, color=1, rect=a, width=5)
+
+    # Display gold
+    screen.blit(font.render('Gold: ' + str(gold), True, green, blue), goldRect)
 
     pygame.display.flip()
