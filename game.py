@@ -18,7 +18,11 @@ blue = (0, 0, 128)
 gold = 100
 pygame.display.set_caption("Tower Defence")
 font = pygame.font.Font('freesansbold.ttf', 17)
+font_tower_cost = pygame.font.Font('freesansbold.ttf', 7)
 text = font.render('Gold: '+str(gold), True, green, blue)
+text_cost = font_tower_cost.render('30', True, green, blue)
+costRect = text_cost.get_rect()
+costRect.center = (40, 5)
 goldRect = text.get_rect()
 goldRect.center = (500, 20)
 speed = 20
@@ -93,7 +97,8 @@ while running:
 
     # create the building interface
     pygame.draw.rect(screen, (255, 255, 255, 255), interface)
-    screen.blit(pygame.transform.scale(tower, (40, 40)), (5, 5))
+    screen.blit(pygame.transform.scale(tower, (35, 35)), (5, 5))
+    screen.blit(font.render('50', True, green, (0, 0, 0)), costRect)
     ticks = time.tick(30)
     # Return the number of milliseconds since pygame.init() was called
     if pygame.time.get_ticks() // enemy_timer > 0 and enemy_count < 10:
@@ -133,6 +138,7 @@ while running:
             building = False
             # store the tower information in tower_dict
             tower_dict["tower"+str(tower_count)] = pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], False
+            gold -= 50
             tower_count += 1
 
     # let each tower find its enemy and attack
@@ -176,6 +182,8 @@ while running:
                     if hp2 <= 0:
                         # Add defeated enemy to defeated list
                         defeated += [this_tower[3]]
+                        # killing enemy gives gold
+                        gold += 20
 
                 else:
                     enemy_dict[this_tower[3]] = enemy_dict[this_tower[3]][0], enemy_dict[this_tower[3]][1], hp2
