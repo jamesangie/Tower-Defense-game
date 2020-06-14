@@ -2,9 +2,8 @@ import pygame
 
 
 class Tower:
-    def __init__(self, name, image, cost, attack, attack_speed, r):
+    def __init__(self, name, cost, attack, attack_speed, r):
         self.name = name
-        self.image = image
         self.cost = cost
         self.attack = attack
         self.attackSpeed = attack_speed
@@ -12,23 +11,20 @@ class Tower:
 
 
 class Enemy:
-    def __init__(self, name, image, speed, hp):
+    def __init__(self, name, speed, hp):
         self.name = name
-        self.image = image
         self.speed = speed
         self.hp = hp
 
 
 class Map:
-    def __init__(self, name, image):
+    def __init__(self, name):
         self.name = name
-        self.image = image
 
 
 class Base:
-    def __init__(self, name, image, speed, hp):
+    def __init__(self, name, hp):
         self.name = name
-        self.image = image
         self.hp = hp
 
 
