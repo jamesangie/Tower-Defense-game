@@ -1,0 +1,4 @@
+
+class CantFindTower(Exception):
+    pass
+
