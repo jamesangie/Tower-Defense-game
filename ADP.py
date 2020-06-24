@@ -78,12 +78,15 @@ class Map:
         last_x = self.route[-1][0]
         last_y = self.route[-1][1]
         li = []
-        if abs(x - last_x) >= abs(y - last_y):
+        # 列个方程找到最后一个坐标与新的坐标中间所有的坐标
+        if abs(x - last_x) >= abs(y - last_y) and not(abs(x - last_x) == 0):
             for i in range(last_x, x, -(last_x - x) // (abs(last_x - x))):
-                li += [(last_x + i, round(last_y + (y - last_y) / (x - last_x) * i))]
-        else:
+                difference = i - last_x - (last_x - x) // (abs(last_x - x))
+                li += [(last_x + difference, round(last_y + (y - last_y) / (x - last_x) * difference))]
+        elif abs(x - last_x) < abs(y - last_y) and not(abs(y - last_y) == 0):
             for i in range(last_y, y, -(last_y - y) // abs(last_y - y)):
-                li += [(round(last_x + (x - last_x) / (y - last_y) * i), last_y + i)]
+                difference = i - last_y - (last_y - y) // abs(last_y - y)
+                li += [(round(last_x + (x - last_x) / (y - last_y) * difference), last_y + difference)]
         self.route += li
 
 
