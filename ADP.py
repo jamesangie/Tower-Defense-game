@@ -1,9 +1,48 @@
 import pygame
+import json
 from Exception import *
+import math
 import os
 
 current_path = os.path.dirname(__file__)
-image_path = os.path.join(current_path, 'venv/image')
+image_path = os.path.join(current_path, 'image')
+stats_path = os.path.join(current_path, "STATS")
+
+
+def initialize_stats():
+    """
+    clear all the info in the stats file
+    :return: None
+    """
+    d = {"tower": {},"enemy": {}, "map": []}
+    with open(os.path.join(stats_path, "object_stats"), 'w') as fhl:
+        s1 = json.dumps(d)
+        fhl.write(s1)
+
+
+# Save the new Tower with stats into the stats file
+def saveNewTower(name, cost, ATT, attack_speed, att_range):
+    """
+    Save the new Tower with stats into the stats file
+    :return: None
+    """
+    with open(os.path.join(stats_path, "object_stats"), 'r') as fhs:
+        s = fhs.read()
+        stats = json.loads(s)
+    stats["tower"][name] = {"cost": cost, "ATT": ATT, "attack_speed": attack_speed, "range": att_range}
+    with open(os.path.join(stats_path, "object_stats"), 'w') as fhl:
+        s1 = json.dumps(stats)
+        fhl.write(s1)
+
+
+def saveNewEnemy(name, speed, hp, gold_drop):
+    with open(os.path.join(stats_path, "object_stats"), 'r') as fhs:
+        s = fhs.read()
+        stats = json.loads(s)
+    stats["enemy"][name] = {"speed": speed, "hp": hp, "gold_drop": gold_drop}
+    with open(os.path.join(stats_path, "object_stats"), 'w') as fhl:
+        s1 = json.dumps(stats)
+        fhl.write(s1)
 
 
 class Tower:
@@ -14,7 +53,9 @@ class Tower:
     TOWER_DICT = {"tower1": [50, 2, 2, 180]}
 
     def __init__(self, name, x, y):
-        """create new tower object by selecting from TOWER_DICT"""
+        """
+        create new tower object by selecting from TOWER_DICT
+        """
         if name not in self.TOWER_DICT.keys():
             raise CantFindTower
         self.name = name
@@ -22,6 +63,7 @@ class Tower:
         self.power = self.TOWER_DICT[name][1]
         self.attackSpeed = self.TOWER_DICT[name][2]
         self.range = self.TOWER_DICT[name][3]
+        self.target = False
         self.x = x
         self.y = y
 
@@ -29,12 +71,22 @@ class Tower:
         return self.x, self.y
 
     def find_target(self, enemy_list):
+        """
+        find the new enemy in tower's attack range
+        :param enemy_list: list(Enemy)
+        :return: None
+        """
         for enemy in enemy_list:
             if math.hypot(self.get_pos()[0] - enemy.get_pos()[0], self.get_pos()[1] - enemy.get_pos()[1]) < self.range:
-                return enemy
+                self.target = enemy
 
     def attack(self, target_enemy):
         target_enemy.hp -= self.power
+        if target_enemy.hp <= 0:
+            target_enemy.isDead = True
+
+
+
 
 
 class Enemy:
@@ -48,6 +100,7 @@ class Enemy:
         self.img = self.ENEMY_IMG[0]
         self.hp = self.ENEMY_DICT[name][1]
         self.gold_drop = self.ENEMY_DICT[name][2]
+        self.isDead = False
         self.tick = 0
         self.x = x
         self.y = y
@@ -55,10 +108,10 @@ class Enemy:
     def get_pos(self):
         return self.x, self.y
 
-    def move(self, map):
+    def move(self, the_map):
         self.tick += 1
-        self.x = map.route[self.tick][0]
-        self.y = map.route[self.tick][1]
+        self.x = the_map.route[self.tick][0]
+        self.y = the_map.route[self.tick][1]
 
 
 class Map:
@@ -78,7 +131,8 @@ class Map:
         last_x = self.route[-1][0]
         last_y = self.route[-1][1]
         li = []
-        # 列个方程找到最后一个坐标与新的坐标中间所有的坐标
+        # looks for all the integer coordinates between route's last coordinate and pos
+        # find max (|x - last_x|, |y - last_y|) and use it to find the other
         if abs(x - last_x) >= abs(y - last_y) and not(abs(x - last_x) == 0):
             for i in range(last_x, x, -(last_x - x) // (abs(last_x - x))):
                 difference = i - last_x - (last_x - x) // (abs(last_x - x))
