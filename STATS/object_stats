@@ -1,0 +1,8 @@
+{
+ "tower": {"tower1": {"cost": 50, "ATT": 2, "attack_speed": 2, "range": 180}
+ },
+ "enemy": {"enemy1": {"speed": 20, "hp": 100, "gold_drop": 25}
+ },
+ "map": [
+ ]
+}
