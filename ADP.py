@@ -14,7 +14,7 @@ def initialize_stats():
     clear all the info in the stats file
     :return: None
     """
-    d = {"tower": {},"enemy": {}, "map": []}
+    d = {"tower": {}, "enemy": {}, "map": []}
     with open(os.path.join(stats_path, "object_stats"), 'w') as fhl:
         s1 = json.dumps(d)
         fhl.write(s1)
@@ -88,7 +88,6 @@ class Tower:
 
 
 
-
 class Enemy:
     ENEMY_IMG = [pygame.transform.scale(pygame.image.load(os.path.join(image_path, "enemy/enemy1.jpg")), (50, 50))]
     # name: [speed, hp, gold_drop]
@@ -150,4 +149,13 @@ class Base:
         self.hp = hp
 
 
+class Game:
+    def __init__(self, stats, Building):
+        self.stats = stats
+        self.state = False
+
+
+
+
 enemy1 = Enemy("enemy1", 50, 10)
+
