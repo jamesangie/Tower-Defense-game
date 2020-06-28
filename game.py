@@ -1,6 +1,6 @@
 import pygame
 import math
-import ADP
+from ADP import *
 
 # activate the pygame library
 # initiate pygame and give permission
@@ -44,10 +44,10 @@ def attack(hp, ticks):
 
 
 # create enemy and tower image using the resized pic
-enemy = pygame.transform.scale(pygame.image.load("venv/image/enemy/enemy1.jpg"), (50, 50))
-tower = pygame.transform.scale(pygame.image.load("venv/image/tower/tower1.jpg"), (50, 50))
-base = pygame.transform.scale(pygame.image.load("venv/image/tower/base.jpg"), (50, 50))
-image = pygame.transform.scale(pygame.image.load("venv/image/map/map1.jpg"), (600, 400))
+enemy = pygame.transform.scale(pygame.image.load("image/enemy/enemy1.jpg"), (50, 50))
+tower = pygame.transform.scale(pygame.image.load("image/tower/tower1.jpg"), (50, 50))
+base = pygame.transform.scale(pygame.image.load("image/tower/base.jpg"), (50, 50))
+image = pygame.transform.scale(pygame.image.load(os.path.join(image_path, "map/map1.jpg")), (600, 400))
 interface = pygame.Rect(0, 0, 600, 50)
 
 # introducing time makes game running
