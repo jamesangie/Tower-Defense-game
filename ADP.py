@@ -1,56 +1,16 @@
 import pygame
-import json
 from Exception import *
 import math
-import os
+from stats_IO import *
 
-current_path = os.path.dirname(__file__)
-image_path = os.path.join(current_path, 'image')
-stats_path = os.path.join(current_path, "STATS")
-
-
-def initialize_stats():
-    """
-    clear all the info in the stats file
-    :return: None
-    """
-    d = {"tower": {}, "enemy": {}, "map": []}
-    with open(os.path.join(stats_path, "object_stats"), 'w') as fhl:
-        s1 = json.dumps(d)
-        fhl.write(s1)
-
-
-# Save the new Tower with stats into the stats file
-def saveNewTower(name, cost, ATT, attack_speed, att_range):
-    """
-    Save the new Tower with stats into the stats file
-    :return: None
-    """
-    with open(os.path.join(stats_path, "object_stats"), 'r') as fhs:
-        s = fhs.read()
-        stats = json.loads(s)
-    stats["tower"][name] = {"cost": cost, "ATT": ATT, "attack_speed": attack_speed, "range": att_range}
-    with open(os.path.join(stats_path, "object_stats"), 'w') as fhl:
-        s1 = json.dumps(stats)
-        fhl.write(s1)
-
-
-def saveNewEnemy(name, speed, hp, gold_drop):
-    with open(os.path.join(stats_path, "object_stats"), 'r') as fhs:
-        s = fhs.read()
-        stats = json.loads(s)
-    stats["enemy"][name] = {"speed": speed, "hp": hp, "gold_drop": gold_drop}
-    with open(os.path.join(stats_path, "object_stats"), 'w') as fhl:
-        s1 = json.dumps(stats)
-        fhl.write(s1)
 
 
 class Tower:
     ATTACK_TIMER = 0
 
     TOWER_IMG = pygame.transform.scale(pygame.image.load(os.path.join(image_path, "tower/tower1.jpg")), (50, 50))
-    # name: [cost, power, attack_speed, r]
-    TOWER_DICT = {"tower1": [50, 2, 2, 180]}
+    # name: [cost, power, attack_speed, r, img]
+    TOWER_DICT = readTower()
 
     def __init__(self, name, x, y):
         """
@@ -59,10 +19,11 @@ class Tower:
         if name not in self.TOWER_DICT.keys():
             raise CantFindTower
         self.name = name
-        self.cost = self.TOWER_DICT[name][0]
-        self.power = self.TOWER_DICT[name][1]
-        self.attackSpeed = self.TOWER_DICT[name][2]
-        self.range = self.TOWER_DICT[name][3]
+        self.cost = self.TOWER_DICT[name]["cost"]
+        self.ATT = self.TOWER_DICT[name]["ATT"]
+        self.attackSpeed = self.TOWER_DICT[name]["attack_speed"]
+        self.range = self.TOWER_DICT[name]["range"]
+        self.img = pygame.transform.scale(pygame.image.load(os.path.join(image_path,self.TOWER_DICT[name]["img"])), (50, 50))
         self.target = False
         self.x = x
         self.y = y
@@ -81,7 +42,7 @@ class Tower:
                 self.target = enemy
 
     def attack(self, target_enemy):
-        target_enemy.hp -= self.power
+        target_enemy.hp -= self.ATT
         if target_enemy.hp <= 0:
             target_enemy.isDead = True
 
@@ -114,14 +75,14 @@ class Enemy:
 
 
 class Map:
-    MAP_IMG = [pygame.transform.scale(pygame.image.load(os.path.join(image_path, "map/map1.jpg")), (50, 50)),
-               pygame.transform.scale(pygame.image.load(os.path.join(image_path, "map/map2.jpg")), (50, 50))]
+    MAP_DICT = readMap()
 
-    def __init__(self, map_id, route):
-        self.map_id = map_id
+    def __init__(self, map_name, init_route):
+        self.map_name = map_name
         # route is a list of coordinates shows where the enemy should go
-        self.route = route
-        self.img = self.MAP_IMG[self.map_id - 1]
+        self.route = [init_route]
+        self.img = pygame.transform.scale(pygame.image.load(os.path.join(image_path, self.MAP_DICT[map_name]["img"])),
+                                          (600, 400))
 
     def extend_route(self, pos):
         """extend current route to the new position(x,y)"""
@@ -142,6 +103,26 @@ class Map:
                 li += [(round(last_x + (x - last_x) / (y - last_y) * difference), last_y + difference)]
         self.route += li
 
+    def drawRoute(self):
+        pygame.init()
+        running = 1
+        event = pygame.event.poll()
+        screen = pygame.display.set_mode((600, 450))
+        while running:
+            if event.type == pygame.QUIT:
+                running = 0
+            screen.fill((0, 0, 0))
+            screen.blit(self.img, (0, 50))
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                # break the game loop if we done inputting routes
+                if pygame.mouse.get_pos()[1] < 50:
+                    running = 0
+                    break
+                self.extend_route(pygame.mouse.get_pos())
+        # save to stats file
+        updateRoute(self.map_name, self.route)
+
 
 class Base:
     def __init__(self, name, hp):
@@ -150,9 +131,15 @@ class Base:
 
 
 class Game:
-    def __init__(self, stats, Building):
-        self.stats = stats
-        self.state = False
+    def __init__(self):
+
+        self.map = readMap()
+        self.tower_list = []
+        self.Enemy_list = []
+
+
+
+    # def builtTower(self, name, x, y):
 
 
 
