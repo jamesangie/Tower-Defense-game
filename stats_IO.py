@@ -14,7 +14,7 @@ def initialize_stats():
     :return: None
     """
     d = {"tower": {"tower1": {"cost": 50, "ATT": 2, "attack_speed": 2, "range": 180, "img": "tower/tower1.jpg"}},
-         "enemy": {"enemy1": {"speed": 20, "hp": 100, "gold_drop": 25, "img": "enemy/enemy1.jpg"}},
+         "enemy": {"enemy1": {"speed": 2, "hp": 100, "gold_drop": 25, "img": "enemy/enemy1.jpg"}},
          "map": {"map1": {"route": [[-5, 266]], "img": "map/map1.jpg"}, "map2": {"route": [], "img": "map/map2.jpg"}}}
     with open(os.path.join(stats_path, "object_stats"), 'w') as fhl:
         s1 = json.dumps(d)
