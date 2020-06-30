@@ -2,6 +2,8 @@ import pygame
 import math
 from ADP import *
 
+
+
 # activate the pygame library
 # initiate pygame and give permission
 # to use pygame's functionality.
@@ -27,122 +29,51 @@ goldRect = text.get_rect()
 goldRect.center = (500, 20)
 speed = 20
 
-
-# function that move some coordinates at constant speed.
-def move_enemy(ticks, alpha):  # alpha is variable that adjust the speed when there is multiple enemy
-    return float(speed) * ticks * float(alpha) / 1000
-
-
-# Function that checks if object1 with coordinate p1 is in the attack range of object2 with coordinate p2 and range r
-def in_range(p1, p2, r):
-    return math.hypot(p1[0] - p2[0], p1[1] - p2[1]) < r
-
-
-# Attack that reduce enemy's health
-def attack(hp, ticks):
-    return hp - float(attackSpeed) * ticks / 1000
-
-
-# create enemy and tower image using the resized pic
-enemy = pygame.transform.scale(pygame.image.load("image/enemy/enemy1.jpg"), (50, 50))
-tower = pygame.transform.scale(pygame.image.load("image/tower/tower1.jpg"), (50, 50))
-base = pygame.transform.scale(pygame.image.load("image/tower/base.jpg"), (50, 50))
-image = pygame.transform.scale(pygame.image.load(os.path.join(image_path, "map/map1.jpg")), (600, 400))
 interface = pygame.Rect(0, 0, 600, 50)
 
 # introducing time makes game running
 time = pygame.time.Clock()
-ticks = 0
 enemy_timer = 5000  # /1000 = seconds
 
-# stats of the enemy, (x,y) is initial pos. hp is health
-x_ini = -10
-y_ini = 271
-hp_ini = 15
-enemy_count = 0
-enemy_dict = {}
-defeated = []
-
-
-# stats of the tower,
-tower_x = 0
-tower_y = 0
-attackSpeed = 2
-ammoSpeed = 10
-has_target = False  # If the tower has enemy in range or not
+base = Base(100)
+game = Game(base)
+game.add_enemy("enemy1",-5,266)
 building = False
-tower_dict = {}
-tower_count = 1
-attackTimer = 1
 
 # Game loop
 while running:
     # background image displayed
     event = pygame.event.poll()
 
-    if event.type == pygame.QUIT or len(defeated) > 9:
+    if event.type == pygame.QUIT:
         running = 0
         print("you win!")
+
+
+    # create the map
+    screen.fill((0, 0, 0))
+    #screen.blit(image, (0, 50))
+
+    # create the building interface
+    pygame.draw.rect(screen, (255, 255, 255, 255), interface)
+    screen.blit(pygame.transform.scale(pygame.image.load(
+        os.path.join(image_path, "tower/tower1.jpg")), (35, 35)), (5, 5))
+    screen.blit(font.render('50', True, green, (0, 0, 0)), costRect)
+    ticks = time.tick(15)
+
+    game.tick(screen)
 
     if event.type == pygame.MOUSEBUTTONDOWN:
         # when we want to build a tower:
         if (5 <= pygame.mouse.get_pos()[0] <= 45) and (5 <= pygame.mouse.get_pos()[1] <= 45):
             # building phase is on, then there is a tower image goes along with the pointer
             building = True
-        print(pygame.mouse.get_pos())
-
-    # create the map
-    screen.fill((0, 0, 0))
-    screen.blit(image, (0, 50))
-
-    # create the building interface
-    pygame.draw.rect(screen, (255, 255, 255, 255), interface)
-    screen.blit(pygame.transform.scale(tower, (35, 35)), (5, 5))
-    screen.blit(font.render('50', True, green, (0, 0, 0)), costRect)
-    ticks = time.tick(30)
-    # Return the number of milliseconds since pygame.init() was called
-    if pygame.time.get_ticks() // enemy_timer > 0 and enemy_count < 10:
-        enemy_timer += 10000
-        enemy_count += 1
-        enemy_dict["enemy"+str(enemy_count)] = (x_ini, y_ini, hp_ini)
-
-    for e in enemy_dict.keys():
-        if e not in defeated:
-            x = enemy_dict[e][0]
-            y = enemy_dict[e][1]
-            hp = enemy_dict[e][2]
-            # check if enemy hits base
-            if x > 600:
-                print("you lost!")
-                running = 0
-            # make the enemy move along the route
-            if (x < 100 and y == 271) or (y <= 154 and x < 219) or (219 < x < 379 and y >= 305) or (x >= 379 and y < 227):
-                x += move_enemy(ticks, enemy_count)
-            elif (y > 154 and x < 219) or (x > 379 and y < 315):
-                y -= move_enemy(ticks, enemy_count)
-            else:
-                y += move_enemy(ticks, enemy_count)
-            enemy_dict[e] = x, y, hp
-            # create enemy and base. Enemy can move at a constant speed
-            screen.blit(enemy, (x-25, y-25))
-    screen.blit(base, (596-50, 228-25))
-
-    # when in building phase
     if building:
-        screen.blit(tower, (pygame.mouse.get_pos()[0]-25, pygame.mouse.get_pos()[1]-25))
-        # shows the hit range of the tower
-        pygame.draw.circle(screen, 1, (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]), 180, 2)
-        # when click on good location in building phase, the tower is built.
-        if (event.type == pygame.MOUSEBUTTONDOWN) and (pygame.mouse.get_pos()[1] > 50):
-            # quit building phase
-            building = False
-            # store the tower information in tower_dict
-            tower_dict["tower"+str(tower_count)] = pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1], False
-            gold -= 50
-            tower_count += 1
+        building = not(game.building(event, screen, "tower1", building))
+
 
     # let each tower find its enemy and attack
-    for t in tower_dict.keys():
+    for t in range(0, 0):
         # tower: [float x, float y, bool have_target, enemy_key target]
         this_tower = tower_dict[t]
         tx = this_tower[0]
@@ -188,11 +119,10 @@ while running:
                 else:
                     enemy_dict[this_tower[3]] = enemy_dict[this_tower[3]][0], enemy_dict[this_tower[3]][1], hp2
 
-    #
     # display rect at certain pos
     # pygame.draw.rect(serface=screen, color=1, rect=a, width=5)
 
     # Display gold
-    screen.blit(font.render('Gold: ' + str(gold), True, green, blue), goldRect)
+    screen.blit(font.render('Gold: ' + str(game.gold), True, green, blue), goldRect)
 
     pygame.display.flip()
