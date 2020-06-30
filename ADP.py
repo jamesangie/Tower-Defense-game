@@ -42,25 +42,30 @@ class Tower:
                 self.target = enemy
 
     def attack(self, target_enemy):
-        target_enemy.hp -= self.ATT
+        if self.ATTACK_TIMER % self.attackSpeed == 0:
+            target_enemy.hp -= self.ATT
         if target_enemy.hp <= 0:
             target_enemy.isDead = True
+            self.target = False
+        elif math.hypot(self.get_pos()[0] - enemy.get_pos()[0], self.get_pos()[1] - enemy.get_pos()[1]) < self.range:
+            self.target = False
+        self.ATTACK_TIMER += 1
 
     def draw(self, screen):
         screen.blit(self.img)
 
 
 class Enemy:
-    ENEMY_IMG = [pygame.transform.scale(pygame.image.load(os.path.join(image_path, "enemy/enemy1.jpg")), (50, 50))]
     # name: [speed, hp, gold_drop]
-    ENEMY_DICT = {"enemy1": [20, 100, 25]}
+    ENEMY_DICT = readEnemy()
 
     def __init__(self, name, x, y):
         self.name = name
-        self.speed = self.ENEMY_DICT[name][0]
-        self.img = self.ENEMY_IMG[0]
-        self.hp = self.ENEMY_DICT[name][1]
-        self.gold_drop = self.ENEMY_DICT[name][2]
+        self.speed = self.ENEMY_DICT[name]["speed"]
+        self.img = pygame.transform.scale(pygame.image.load(os.path.join(image_path, self.ENEMY_DICT[name]["img"])),
+                                          (50, 50))
+        self.hp = self.ENEMY_DICT[name]["hp"]
+        self.gold_drop = self.ENEMY_DICT[name]["gold_drop"]
         self.isDead = False
         self.tick = 0
         self.x = x
@@ -71,8 +76,12 @@ class Enemy:
 
     def move(self, the_map):
         self.tick += 1
-        self.x = the_map.route[self.tick * self.speed][0]
-        self.y = the_map.route[self.tick * self.speed][1]
+        if len(the_map.route) <= self.tick * self.speed:
+            self.isDead = True
+
+        else:
+            self.x = the_map.route[self.tick * self.speed][0]
+            self.y = the_map.route[self.tick * self.speed][1]
 
     def draw(self, screen):
         screen.blit(self.img, (self.x, self.y))
@@ -90,7 +99,6 @@ class Map:
             self.route = [init_route]
         self.img = pygame.transform.scale(pygame.image.load(os.path.join(image_path, self.MAP_DICT[map_name]["img"])),
                                           (600, 400))
-        print(self.MAP_DICT[map_name]["img"])
 
     def extend_route(self, pos):
         """extend current route to the new position(x,y)"""
@@ -104,11 +112,11 @@ class Map:
         if abs(x - last_x) >= abs(y - last_y) and not (abs(x - last_x) == 0):
             for i in range(last_x, x, -(last_x - x) // (abs(last_x - x))):
                 difference = i - last_x - (last_x - x) // (abs(last_x - x))
-                li += [(last_x + difference, round(last_y + (y - last_y) / (x - last_x) * difference))]
+                li += [[last_x + difference, round(last_y + (y - last_y) / (x - last_x) * difference)]]
         elif abs(x - last_x) < abs(y - last_y) and not (abs(y - last_y) == 0):
             for i in range(last_y, y, -(last_y - y) // abs(last_y - y)):
                 difference = i - last_y - (last_y - y) // abs(last_y - y)
-                li += [(round(last_x + (x - last_x) / (y - last_y) * difference), last_y + difference)]
+                li += [[round(last_x + (x - last_x) / (y - last_y) * difference), last_y + difference]]
         self.route += li
 
     def makeRoute(self):
@@ -123,9 +131,8 @@ class Map:
 
             # pygame.transform.scale(pygame.image.load(os.path.join(image_path, self.MAP_DICT[map_name]["img"])),
             # (600, 400))
-            i = pygame.transform.scale(pygame.image.load(os.path.join(image_path, "map/map1.jpg")), (600, 400))
-            screen.blit(i, (0, 50))
-            # screen.blit(self.img, (0, 50))
+
+            screen.blit(self.img, (0, 50))
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # break the game loop if we done inputting routes
@@ -138,20 +145,52 @@ class Map:
         updateRoute(self.map_name, self.route)
         print(self.route)
 
+    def draw(self, screen):
+
+        screen.blit(self.img, (600, 400))
+
 
 class Base:
-    def __init__(self, name, hp):
-        self.name = name
+    def __init__(self, hp):
+        self.img = pygame.transform.scale(pygame.image.load(os.path.join(image_path, "map/base.jpg")), (50, 50))
         self.hp = hp
+
+    def draw(self, screen, x, y):
+        screen.blit(self.img, (x, y))
 
 
 class Game:
-    def __init__(self):
-        self.map = readMap()
-        self.tower_list = []
-        self.Enemy_list = []
+    STATS = readStats()
 
-    # def builtTower(self, name, x, y):
+    def __init__(self, base):
+        self.map = readMap()
+        self.towers = []
+        self.enemies = []
+        self.hp = base.hp
+        self.base = base
+
+    def add_tower(self, tower_name, x, y):
+        tower = Tower(tower_name, x, y)
+        self.towers += [tower]
+
+    def add_enemy(self, enemy_name, x, y):
+        self.enemies += [Enemy(enemy_name, x, y)]
+
+    # the method we call on every frame to run the game
+    def tick(self, screen):
+
+        self.map.draw(screen)
+        for tower in self.towers:
+            if tower.target == False:
+                tower.find_target(self.enemies)
+            if tower.target != False:
+                tower.attack(tower.target)
+            tower.draw()
+        for enemy in self.enemies:
+            if not enemy.isDead:
+                enemy.move(self.map)
+                enemy.draw()
+        self.base.draw(screen, self.map.route[-1][0], self.map.route[-1][1])
 
 
 enemy1 = Enemy("enemy1", 50, 10)
