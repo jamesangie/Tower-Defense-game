@@ -21,7 +21,7 @@ def testMapRouteExtend():
 
 def testEnemyMoving():
     m = Map("map1", (1, 1))
-    m.extend_route((7,3))
+    m.extend_route((7, 3))
     enemy = Enemy("enemy1", m.route[0][0], m.route[0][1])
     print("pos of enemy: " + str(enemy.get_pos()))
     enemy.move(m)
@@ -51,7 +51,7 @@ def testMapMakeRoute():
     print(m.route)
     m.makeRoute()
 
-#testInitializeStatsFile()
+testInitializeStatsFile()
 #testUpdateRoute()
 testMapMakeRoute()
 #testMapRouteExtend()
