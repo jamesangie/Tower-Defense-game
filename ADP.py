@@ -7,7 +7,6 @@ from stats_IO import *
 class Tower:
     ATTACK_TIMER = 0
 
-    TOWER_IMG = pygame.transform.scale(pygame.image.load(os.path.join(image_path, "tower/tower1.jpg")), (50, 50))
     # name: [cost, power, attack_speed, r, img]
     TOWER_DICT = readTower()
 
@@ -38,21 +37,23 @@ class Tower:
         :return: None
         """
         for enemy in enemy_list:
-            if math.hypot(self.get_pos()[0] - enemy.get_pos()[0], self.get_pos()[1] - enemy.get_pos()[1]) < self.range:
+            if math.hypot(self.x - enemy.x, self.y - enemy.y) < self.range:
                 self.target = enemy
 
-    def attack(self, target_enemy):
+    def attack(self, target_enemy, game):
         if self.ATTACK_TIMER % self.attackSpeed == 0:
             target_enemy.hp -= self.ATT
         if target_enemy.hp <= 0:
             target_enemy.isDead = True
             self.target = False
-        elif math.hypot(self.get_pos()[0] - enemy.get_pos()[0], self.get_pos()[1] - enemy.get_pos()[1]) < self.range:
+            game.gold += target_enemy.gold_drop
+        elif math.hypot(self.x - target_enemy.x, self.y - target_enemy.y) < self.range:
             self.target = False
         self.ATTACK_TIMER += 1
 
+
     def draw(self, screen):
-        screen.blit(self.img)
+        screen.blit(self.img, (self.x - 25, self.y - 25))
 
 
 class Enemy:
@@ -71,20 +72,16 @@ class Enemy:
         self.x = x
         self.y = y
 
-    def get_pos(self):
-        return self.x, self.y
-
     def move(self, the_map):
         self.tick += 1
         if len(the_map.route) <= self.tick * self.speed:
             self.isDead = True
-
         else:
             self.x = the_map.route[self.tick * self.speed][0]
             self.y = the_map.route[self.tick * self.speed][1]
 
     def draw(self, screen):
-        screen.blit(self.img, (self.x, self.y))
+        screen.blit(self.img, (self.x - 25, self.y - 25))
 
 
 class Map:
@@ -146,13 +143,12 @@ class Map:
         print(self.route)
 
     def draw(self, screen):
-
-        screen.blit(self.img, (600, 400))
+        screen.blit(self.img, (0, 50))
 
 
 class Base:
     def __init__(self, hp):
-        self.img = pygame.transform.scale(pygame.image.load(os.path.join(image_path, "map/base.jpg")), (50, 50))
+        self.img = pygame.transform.scale(pygame.image.load(os.path.join(image_path, "tower/base.jpg")), (50, 50))
         self.hp = hp
 
     def draw(self, screen, x, y):
@@ -161,13 +157,15 @@ class Base:
 
 class Game:
     STATS = readStats()
+    TICK = 0
 
     def __init__(self, base):
-        self.map = readMap()
+        self.map = Map("map1")
         self.towers = []
         self.enemies = []
         self.hp = base.hp
         self.base = base
+        self.gold = 100
 
     def add_tower(self, tower_name, x, y):
         tower = Tower(tower_name, x, y)
@@ -178,19 +176,49 @@ class Game:
 
     # the method we call on every frame to run the game
     def tick(self, screen):
-
         self.map.draw(screen)
+
         for tower in self.towers:
-            if tower.target == False:
+            if not tower.target:
                 tower.find_target(self.enemies)
             if tower.target != False:
-                tower.attack(tower.target)
-            tower.draw()
+                pygame.draw.line(screen, 1, (tower.x, tower.y), (tower.target.x, tower.target.y), 2)
+                tower.attack(tower.target, self)
+            tower.draw(screen)
         for enemy in self.enemies:
             if not enemy.isDead:
+
                 enemy.move(self.map)
-                enemy.draw()
+                enemy.draw(screen)
         self.base.draw(screen, self.map.route[-1][0], self.map.route[-1][1])
+        self.TICK += 1
+
+    def check_winning(self):
+        for enemy in self.enemies:
+            if not enemy.isDead:
+                return False
+
+    def check_lost(self):
+        if self.hp <= 0:
+            return True
+
+    def building(self, event, screen, tower_name, building):
+        if building and self.gold >= self.STATS["tower"][tower_name]["cost"]:
+            tower = pygame.transform.scale(pygame.image.load(os.path.join(image_path,
+                                                                          self.STATS["tower"][tower_name]["img"])),
+                                           (50, 50))
+            screen.blit(tower, (pygame.mouse.get_pos()[0] - 25, pygame.mouse.get_pos()[1] - 25))
+            # shows the hit range of the tower
+            pygame.draw.circle(screen, 1, (pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1]),
+                               self.STATS["tower"][tower_name]["range"], 2)
+            # when click on good location in building phase, the tower is built.
+            if (event.type == pygame.MOUSEBUTTONDOWN) and (pygame.mouse.get_pos()[1] > 50):
+                # store the tower information in towers
+                self.towers += [Tower(tower_name, pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])]
+                self.gold -= self.STATS["tower"][tower_name]["cost"]
+                return True
+            return False
+        return True
 
 
 enemy1 = Enemy("enemy1", 50, 10)
